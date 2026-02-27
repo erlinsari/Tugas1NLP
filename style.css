@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&display=swap');
-
 :root {
     --white: #ffffff;
     --bg: #f5f7fb;
@@ -19,7 +17,7 @@ html,
 body,
 [class*="css"],
 * {
-    font-family: 'DM Sans', sans-serif !important;
+    font-family: sans-serif !important;
 }
 
 .stApp {
@@ -461,4 +459,5 @@ details {
 .stSlider label {
     color: var(--text-2) !important;
     font-size: 0.8rem !important;
+
 }
