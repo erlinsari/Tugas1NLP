@@ -1,8 +1,3 @@
-"""
-03 - Modeling & Evaluasi
-Melatih model SVM untuk klasifikasi sentimen ulasan DANA.
-"""
-
 import pandas as pd
 import numpy as np
 import matplotlib
@@ -33,7 +28,6 @@ print(f"Data: {len(df)} baris")
 print("\nDistribusi Sentimen:")
 print(distribusi.to_string())
 
-# -- Feature Engineering --
 X = df["teks_bersih"]
 y = df["sentimen"]
 
@@ -56,14 +50,12 @@ print(f"\nData latih : {len(X_train)}")
 print(f"Data uji   : {len(X_test)}")
 print(f"Fitur TF-IDF: {X_train_tfidf.shape[1]}")
 
-# -- Modeling (SVM) --
 print("\nMelatih model SVM...")
 svm = LinearSVC(C=1.0, max_iter=5000, random_state=42, class_weight="balanced")
 model = CalibratedClassifierCV(svm, cv=3)
 model.fit(X_train_tfidf, y_train)
 print("Model selesai dilatih.")
 
-# -- Evaluasi --
 prediksi = model.predict(X_test_tfidf)
 akurasi = accuracy_score(y_test, prediksi)
 label_unik = sorted(y.unique())
@@ -74,7 +66,6 @@ print(classification_report(y_test, prediksi, target_names=label_unik))
 laporan = classification_report(y_test, prediksi, target_names=label_unik, output_dict=True)
 pd.DataFrame(laporan).transpose().to_csv("data/laporan_evaluasi.csv", encoding="utf-8-sig")
 
-# -- Visualisasi: Confusion Matrix --
 cm = confusion_matrix(y_test, prediksi, labels=label_unik)
 fig, ax = plt.subplots(figsize=(8, 6))
 sns.heatmap(cm, annot=True, fmt="d", cmap="RdYlGn",
@@ -87,7 +78,6 @@ plt.tight_layout()
 plt.savefig("gambar/confusion_matrix.png", dpi=150, bbox_inches="tight")
 plt.close()
 
-# -- Visualisasi: Distribusi Sentimen --
 palet = {"Positif": "#10b981", "Netral": "#f59e0b", "Negatif": "#ef4444"}
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
 fig.suptitle("Distribusi Sentimen Ulasan DANA", fontsize=14, fontweight="bold")
@@ -110,7 +100,6 @@ plt.tight_layout()
 plt.savefig("gambar/distribusi_sentimen.png", dpi=150, bbox_inches="tight")
 plt.close()
 
-# -- Visualisasi: Word Cloud --
 fig, sumbu = plt.subplots(1, 3, figsize=(18, 5))
 fig.suptitle("Word Cloud Ulasan DANA per Sentimen", fontsize=14, fontweight="bold")
 
@@ -134,7 +123,6 @@ plt.tight_layout()
 plt.savefig("gambar/wordcloud_sentimen.png", dpi=150, bbox_inches="tight")
 plt.close()
 
-# -- Simpan Model --
 joblib.dump(model, "model/model_sentimen.pkl")
 joblib.dump(vektorizer, "model/vektorizer_tfidf.pkl")
 
@@ -159,3 +147,4 @@ with open("model/metadata_model.json", "w", encoding="utf-8") as f:
 
 print("\nModel & metadata tersimpan.")
 print(f"Akurasi akhir: {akurasi * 100:.2f}%")
+
