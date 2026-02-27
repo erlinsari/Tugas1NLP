@@ -1,11 +1,8 @@
-# Akuisisi Data Ulasan DANA
-
 import pandas as pd
 from google_play_scraper import reviews, Sort
 import time
 import os
 
-# Konfigurasi
 APP_ID = "id.dana"
 TARGET = 2000
 OUTPUT = "data/ulasan_dana_mentah.csv"
@@ -51,7 +48,6 @@ except Exception as e:
 
 print(f"\nTotal ulasan: {len(semua_ulasan)}")
 
-# Buat DataFrame
 daftar = []
 for u in semua_ulasan:
     daftar.append({
