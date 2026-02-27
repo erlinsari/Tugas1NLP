@@ -1,0 +1,27 @@
+{
+  "akurasi": 0.8042328042328042,
+  "jumlah_data": 1889,
+  "jumlah_latih": 1511,
+  "jumlah_uji": 378,
+  "jumlah_fitur": 984,
+  "kelas": [
+    "Negatif",
+    "Netral",
+    "Positif"
+  ],
+  "distribusi": {
+    "Positif": 1371,
+    "Negatif": 428,
+    "Netral": 90
+  },
+  "algoritma": "SVM (LinearSVC + CalibratedClassifierCV)",
+  "presisi_negatif": 0.6935483870967742,
+  "recall_negatif": 0.5,
+  "f1_negatif": 0.581081081081081,
+  "presisi_netral": 0.0,
+  "recall_netral": 0.0,
+  "f1_netral": 0.0,
+  "presisi_positif": 0.8259493670886076,
+  "recall_positif": 0.9525547445255474,
+  "f1_positif": 0.8847457627118644
+}
