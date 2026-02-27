@@ -9,14 +9,11 @@ import joblib, json, os, re
 from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory
 from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
 
-# -- Konfigurasi halaman --
 st.set_page_config(page_title="SentiDana", page_icon="💳", layout="wide", initial_sidebar_state="collapsed")
 
-# -- Load CSS dari file terpisah --
 with open("style.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-# -- Load model & data --
 @st.cache_resource
 def muat_model():
     return joblib.load("model/model_sentimen.pkl"), joblib.load("model/vektorizer_tfidf.pkl")
@@ -34,7 +31,6 @@ def muat_meta():
 def muat_nlp():
     return StopWordRemoverFactory().create_stop_word_remover(), StemmerFactory().create_stemmer()
 
-# -- Preprocessing --
 SLANG = {
     "gk":"tidak","ga":"tidak","gak":"tidak","ngga":"tidak","nggak":"tidak",
     "yg":"yang","dgn":"dengan","sy":"saya","sdh":"sudah","udh":"sudah",
@@ -63,7 +59,6 @@ def preprocess(teks, sw, st_):
     teks = st_.stem(teks)
     return teks
 
-# -- Guard --
 if not (os.path.exists("model/model_sentimen.pkl") and os.path.exists("data/ulasan_dana_bersih.csv")):
     st.error("Model/data belum tersedia.")
     st.stop()
@@ -73,7 +68,6 @@ data = muat_data()
 meta = muat_meta()
 sw, st_ = muat_nlp()
 
-# ── NAVBAR ──
 st.markdown("""
 <div class="navbar">
     <div class="nav-brand">
@@ -86,9 +80,6 @@ st.markdown("""
 halaman = st.radio("nav", ["Dashboard", "Analisis Sentimen", "Grafik dan Statistik", "Data Ulasan"],
                     horizontal=True, label_visibility="collapsed")
 
-# ════════════════════════════════════
-#  DASHBOARD
-# ════════════════════════════════════
 if halaman == "Dashboard":
     st.markdown("""
     <div class="hero-banner">
@@ -106,7 +97,6 @@ if halaman == "Dashboard":
     dist = meta.get("distribusi", {})
     pos_pct = round(dist.get("Positif", 0) / total * 100, 1) if total else 0
 
-    # KPI Cards
     for col, val, lbl, blue in zip(
         st.columns(4),
         [f"{akurasi*100:.1f}%", f"{total:,}", f"{fitur:,}", f"{pos_pct}%"],
@@ -117,7 +107,6 @@ if halaman == "Dashboard":
             cls = " blue" if blue else ""
             st.markdown(f'<div class="stat-card"><div class="sc-label">{lbl}</div><div class="sc-value{cls}">{val}</div></div>', unsafe_allow_html=True)
 
-    # Pipeline
     st.markdown('<div class="section-title">Pipeline NLP</div>', unsafe_allow_html=True)
     pipe = [
         ("01", "Data Acquisition", "Scraping 2.000 ulasan DANA dari Google Play Store"),
@@ -132,7 +121,6 @@ if halaman == "Dashboard":
         with (ca if i < 3 else cb):
             st.markdown(f'<div class="timeline-item"><div class="tl-dot">{n}</div><div><div class="tl-title">{t}</div><div class="tl-desc">{d}</div></div></div>', unsafe_allow_html=True)
 
-    # Distribusi
     st.markdown('<div class="section-title">Distribusi Sentimen</div>', unsafe_allow_html=True)
     col_l, col_r = st.columns([2, 3])
     with col_l:
@@ -152,9 +140,6 @@ if halaman == "Dashboard":
         st.pyplot(fig, transparent=True)
         plt.close()
 
-# ════════════════════════════════════
-#  ANALISIS SENTIMEN
-# ════════════════════════════════════
 elif halaman == "Analisis Sentimen":
     st.markdown('<div class="page-label">Prediksi</div>', unsafe_allow_html=True)
     st.markdown('<div class="page-title">Analisis Sentimen Ulasan</div>', unsafe_allow_html=True)
@@ -190,15 +175,11 @@ elif halaman == "Analisis Sentimen":
         else:
             st.markdown('<div class="placeholder-box"><div class="ph-title">Belum ada teks yang dianalisis</div><div class="ph-desc">Masukkan ulasan lalu klik Analisis Sentimen.</div></div>', unsafe_allow_html=True)
 
-# ════════════════════════════════════
-#  GRAFIK DAN STATISTIK (REDESIGNED)
-# ════════════════════════════════════
 elif halaman == "Grafik dan Statistik":
     st.markdown('<div class="page-label">Visualisasi</div>', unsafe_allow_html=True)
     st.markdown('<div class="page-title">Grafik dan Statistik</div>', unsafe_allow_html=True)
     st.markdown('<div class="page-desc">Ringkasan visual dari hasil analisis sentimen ulasan DANA.</div>', unsafe_allow_html=True)
 
-    # ── Baris 1: Performa Model (horizontal cards) ──
     st.markdown('<div class="section-title">Performa Model</div>', unsafe_allow_html=True)
     m1, m2, m3, m4 = st.columns(4)
     m1.metric("Akurasi", f"{meta.get('akurasi',0)*100:.1f}%")
@@ -206,7 +187,6 @@ elif halaman == "Grafik dan Statistik":
         f1 = meta.get(f"f1_{s.lower()}", 0)
         col.metric(f"F1 {s}", f"{f1*100:.1f}%")
 
-    # ── Baris 2: Rating Distribution + Confusion Matrix ──
     st.markdown('<div class="section-title">Distribusi Rating dan Confusion Matrix</div>', unsafe_allow_html=True)
     col_rating, col_cm = st.columns(2)
 
@@ -233,7 +213,6 @@ elif halaman == "Grafik dan Statistik":
         if os.path.exists("gambar/confusion_matrix.png"):
             st.image("gambar/confusion_matrix.png", use_container_width=True)
 
-    # ── Baris 3: Word Cloud + Kata Populer ──
     st.markdown('<div class="section-title">Analisis Kata</div>', unsafe_allow_html=True)
     col_wc, col_kata = st.columns([3, 2])
 
@@ -253,7 +232,6 @@ elif halaman == "Grafik dan Statistik":
                 kata_df.index = range(1, len(kata_df) + 1)
                 st.dataframe(kata_df, use_container_width=True, height=350)
 
-    # ── Baris 4: Detail Metrik per Kelas ──
     st.markdown('<div class="section-title">Detail Metrik per Sentimen</div>', unsafe_allow_html=True)
     for s in ["Positif", "Negatif", "Netral"]:
         p = meta.get(f"presisi_{s.lower()}", 0)
@@ -273,9 +251,6 @@ elif halaman == "Grafik dan Statistik":
         </div>
         """, unsafe_allow_html=True)
 
-# ════════════════════════════════════
-#  DATA ULASAN
-# ════════════════════════════════════
 elif halaman == "Data Ulasan":
     st.markdown('<div class="page-label">Dataset</div>', unsafe_allow_html=True)
     st.markdown('<div class="page-title">Data Ulasan DANA</div>', unsafe_allow_html=True)
